@@ -5,9 +5,6 @@ const app = express()
 // json parser
 const bodyParser = require('body-parser')
 
-// express validator
-const expressValidator = require('express-validator')
-
 // dev monitoring
 const morgan = require('morgan')
 
@@ -26,8 +23,4 @@ app.use(bodyParser.json());
 let listRoutes = userRoutes.init();
 app.use(listRoutes);
 
-// start up
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Running on port ${PORT}`);
-})
+module.exports = app;

@@ -8,6 +8,7 @@ const UserController = require('../controllers/UserController');
 router.group('/users', [], (router) => {
     router.get('/list', UserController.list);
     router.post('/register', validator.registerValidator, UserController.register);
+    router.post('/login', validator.loginValidator, UserController.login);
 })
 
 module.exports = router;

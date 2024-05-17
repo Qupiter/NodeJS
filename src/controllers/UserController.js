@@ -2,6 +2,8 @@ const { validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const con = require('../config/database.js');
 const UserModel = require('../models/UserModel.js');
+const { hash: hashPassword, compare: comparePassword } = require('../helpers/password');
+const { generate: generateToken } = require('../helpers/token');
 
 class UserController {
 
@@ -35,8 +37,7 @@ class UserController {
             return res.status(500).json({errors: 'Iternal server error'});
         }
 
-        const salt = await bcrypt.genSalt(10);
-        const passwordHashed = await bcrypt.hash(requestParameters.password, salt);
+        const passwordHashed = hashPassword(requestParameters.password);
 
         try {
             var newUser = await UserModel.createUser(requestParameters.email, passwordHashed);
@@ -48,6 +49,35 @@ class UserController {
             status: 'success',
             data: newUser
         });
+    }
+
+    static async login(req, res) {
+        // validation
+        const errors = validationResult(req);
+        if(!errors.isEmpty()) {
+            res.status(400).json({errors: errors.array()});
+        }
+
+        const requestParameters = {
+            email: req.body.email,
+            password: req.body.password
+        };
+
+        const existingUser = await UserModel.getUserByEmail(requestParameters.email);
+        if(existingUser) {
+            if (comparePassword(requestParameters.password.trim(), existingUser.password)) {
+                const token = generateToken(existingUser.id);
+                return res.status(200).send({
+                    status: 'success',
+                    data: {
+                        email: existingUser.email,
+                        token
+                    }
+                });
+            }
+        }
+
+        return res.status(400).json({error: 'Wrong email or password'})
     }
 }
 
