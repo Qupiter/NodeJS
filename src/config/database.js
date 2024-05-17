@@ -1,19 +1,21 @@
 
 const mysql = require('mysql2');
+const { logger } = require('../helpers/logger');
+const { DB_HOST, DB_NAME, DB_USER, DB_PASS } = require('../helpers/configurations');
 
 const con = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME
+    host: DB_HOST,
+    user: DB_USER,
+    password: DB_PASS,
+    database: DB_NAME
 });
 
 con.connect(function(err) {
     if (err) {
-        console.log("Error connecting to the database!");
+        logger.error(err.message);
         return;
     }
-    console.log("Connected to the database!");
+    logger.info("Connected to the database!");
 });
 
 module.exports = con

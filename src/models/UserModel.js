@@ -29,11 +29,25 @@ const UserModel = {
         return new Promise((resolve, reject) => {
             con.query('SELECT * FROM users WHERE email = ?', email, function(err, result) {
                 if (err) reject(err);
-                if (result.length > 0) {
+                if (result && result.length > 0) {
                     const user = UserModel.buildUserFromData(result[0]);
                     resolve(user);
                 } else {
                     resolve(null); // No user found
+                }
+            });
+        });
+    },
+
+    // Identifies User by id
+    identify: (id) => {
+        return new Promise((resolve, reject) => {            
+            con.query('SELECT * FROM users WHERE id = ? LIMIT 1', id ?? 0, function(err, result) {
+                if (err) reject(err);
+                if (result && result.length > 0) {
+                    resolve(true); // User found
+                } else {
+                    resolve(false); // No user found
                 }
             });
         });

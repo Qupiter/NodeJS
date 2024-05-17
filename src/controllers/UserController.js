@@ -11,7 +11,10 @@ class UserController {
     static async list(req, res) {
         con.query("SELECT * FROM users", function (err, result, fields) {
             if (err) throw err;
-            res.status(200).json(result);
+            res.status(200).json({
+                status: 'success',
+                data: result
+            });
         });
     }
 
@@ -20,7 +23,7 @@ class UserController {
         // validation
         const errors = validationResult(req);
         if(!errors.isEmpty()) {
-            res.status(400).json({errors: errors.array()});
+           return res.status(400).json({errors: errors.array()});
         }
 
         const requestParameters = {
@@ -28,22 +31,14 @@ class UserController {
             password: req.body.password
         };
 
-        try {
-            const existingUser = await UserModel.getUserByEmail(requestParameters.email);
-            if(existingUser) {
-                return res.status(400).json({error: 'User already exists'})
-            }
-        } catch (err) {
-            return res.status(500).json({errors: 'Iternal server error'});
+        const existingUser = await UserModel.getUserByEmail(requestParameters.email);
+        if(existingUser) {
+            return res.status(400).json({error: 'User already exists'})
         }
 
         const passwordHashed = hashPassword(requestParameters.password);
 
-        try {
-            var newUser = await UserModel.createUser(requestParameters.email, passwordHashed);
-        } catch (err) {
-            return res.status(500).json({errors: 'Iternal server error'});
-        }
+        var newUser = await UserModel.createUser(requestParameters.email, passwordHashed);
 
         return res.status(200).json({
             status: 'success',
@@ -66,7 +61,9 @@ class UserController {
         const existingUser = await UserModel.getUserByEmail(requestParameters.email);
         if(existingUser) {
             if (comparePassword(requestParameters.password.trim(), existingUser.password)) {
+
                 const token = generateToken(existingUser.id);
+
                 return res.status(200).send({
                     status: 'success',
                     data: {
@@ -78,6 +75,15 @@ class UserController {
         }
 
         return res.status(400).json({error: 'Wrong email or password'})
+    }
+
+    static async delete(req, res) {
+
+        const requestParameters = {
+            ids: req.body.ids,
+        };
+
+        return res.status(200).json({data: requestParameters.ids})
     }
 }
 
