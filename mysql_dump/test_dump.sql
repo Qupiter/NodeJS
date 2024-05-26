@@ -27,8 +27,8 @@ CREATE TABLE `users` (
 
 -- Dumping data for table node.users: ~2 rows (approximately)
 REPLACE INTO `users` (`id`, `email`, `password`, `authority`, `deleted`) VALUES
-	(1, 'dipper@gmail.com', '$2a$10$mxehy/b1WBW.tjXFiu5m6.DY4Pbck9rPaVFS7bQk1dmSF9w7GHdva', 0, 0),
-	(2, 'zubber@gmail.com', '$2a$10$OEZ5saGe4ihnn849ayP9sOz00lVXn6ZGUoznH0Vk6v/Jmtqo/GyL6', 0, 0);
+	(1, 'dipper@gmail.com', '$2a$10$mxehy/b1WBW.tjXFiu5m6.DY4Pbck9rPaVFS7bQk1dmSF9w7GHdva', 1, 0),
+	(2, 'zubber@gmail.com', '$2a$10$OEZ5saGe4ihnn849ayP9sOz00lVXn6ZGUoznH0Vk6v/Jmtqo/GyL6', 2, 0);
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
