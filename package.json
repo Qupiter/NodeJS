@@ -5,7 +5,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "serve": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "db:up": "node src/migrations/dbUp.js",
+    "db:down": "node src/migrations/dbDown.js"
   },
   "keywords": [],
   "author": "",

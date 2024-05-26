@@ -1,6 +1,4 @@
 const { validationResult } = require('express-validator');
-const bcrypt = require('bcryptjs');
-const con = require('../helpers/database.js');
 const UserModel = require('../models/UserModel.js');
 const { hash: hashPassword, compare: comparePassword } = require('../helpers/password');
 const { generate: generateToken } = require('../helpers/token');
