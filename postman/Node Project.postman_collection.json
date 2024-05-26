@@ -66,6 +66,7 @@
 							"script": {
 								"exec": [
 									"var response = pm.response.json();\r",
+									"pm.environment.set('newUser', response.data.id);\r",
 									"\r",
 									"pm.test(\"Status test 200\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -77,6 +78,16 @@
 									"    pm.expect(response.data.email).to.eql('test@gmail.com');\r",
 									"    pm.expect(response.data.password).to.be.a('string').and.not.be.empty;\r",
 									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -132,6 +143,16 @@
 								"type": "text/javascript",
 								"packages": {}
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
 						}
 					],
 					"request": {
@@ -139,7 +160,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"dipper@gmail.com\",\r\n    \"password\": \"dipper1234\"\r\n}",
+							"raw": "{\r\n    \"email\": \"zubber@gmail.com\",\r\n    \"password\": \"zubber1234\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -212,6 +233,67 @@
 					"response": []
 				},
 				{
+					"name": "Delete Hard No Permissions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status test 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test('Response data test', function() {\r",
+									"    pm.expect(response.data.email).to.be.a('string');\r",
+									"    pm.expect(response.data.email).to.eql('dipper@gmail.com');\r",
+									"    pm.expect(response.data.token).to.be.a('string').and.not.be.empty;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ids\": [\r\n        {{newUser}}\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}:{{port}}/users/delete/hard",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"users",
+								"delete",
+								"hard"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Delete",
 					"event": [
 						{
@@ -266,6 +348,118 @@
 							"path": [
 								"users",
 								"delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = pm.response.json();\r",
+									"pm.environment.set('token', response.data.token);\r",
+									"\r",
+									"pm.test(\"Status test 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test('Response data test', function() {\r",
+									"    pm.expect(response.data.email).to.be.a('string');\r",
+									"    pm.expect(response.data.email).to.eql('dipper@gmail.com');\r",
+									"    pm.expect(response.data.token).to.be.a('string').and.not.be.empty;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"dipper@gmail.com\",\r\n    \"password\": \"dipper1234\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}:{{port}}/users/login",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Hard",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status test 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test('Response data test', function() {\r",
+									"    pm.expect(response.data.email).to.be.a('string');\r",
+									"    pm.expect(response.data.email).to.eql('dipper@gmail.com');\r",
+									"    pm.expect(response.data.token).to.be.a('string').and.not.be.empty;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ids\": [\r\n        {{newUser}}\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}:{{port}}/users/delete/hard",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"users",
+								"delete",
+								"hard"
 							]
 						}
 					},
