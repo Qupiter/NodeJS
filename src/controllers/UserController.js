@@ -1,6 +1,6 @@
 const { validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
-const con = require('../config/database.js');
+const con = require('../helpers/database.js');
 const UserModel = require('../models/UserModel.js');
 const { hash: hashPassword, compare: comparePassword } = require('../helpers/password');
 const { generate: generateToken } = require('../helpers/token');
@@ -9,12 +9,11 @@ class UserController {
 
     //** fetches all users */
     static async list(req, res) {
-        con.query("SELECT * FROM users", function (err, result, fields) {
-            if (err) throw err;
-            res.status(200).json({
-                status: 'success',
-                data: result
-            });
+        const listUsers = await UserModel.findAll();
+
+        return res.status(200).json({
+            status: 'success',
+            data: listUsers
         });
     }
 
@@ -38,7 +37,7 @@ class UserController {
 
         const passwordHashed = hashPassword(requestParameters.password);
 
-        var newUser = await UserModel.createUser(requestParameters.email, passwordHashed);
+        var newUser = await UserModel.create(requestParameters.email, passwordHashed);
 
         return res.status(200).json({
             status: 'success',
@@ -62,7 +61,7 @@ class UserController {
         if(existingUser) {
             if (comparePassword(requestParameters.password.trim(), existingUser.password)) {
 
-                const token = generateToken(existingUser.id);
+                const token = generateToken(existingUser.id, existingUser.authority);
 
                 return res.status(200).send({
                     status: 'success',
@@ -77,13 +76,35 @@ class UserController {
         return res.status(400).json({error: 'Wrong email or password'})
     }
 
-    static async delete(req, res) {
+    static async update(req, res) {
 
         const requestParameters = {
             ids: req.body.ids,
         };
 
         return res.status(200).json({data: requestParameters.ids})
+    }
+
+    static async delete(req, res) {
+
+        const requestParameters = {
+            ids: req.body.ids,
+        };
+
+        const result = await UserModel.delete(requestParameters.ids);
+
+        return res.status(200).json({data: result})
+    }
+
+    static async deleteHard(req, res) {
+
+        const requestParameters = {
+            ids: req.body.ids,
+        };
+
+        const result = await UserModel.deleteHard(requestParameters.ids);
+
+        return res.status(200).json({data: result})
     }
 }
 

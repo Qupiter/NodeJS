@@ -1,33 +1,77 @@
-var con = require('../config/database');
+var con = require('../helpers/database');
 
 class User {
-    constructor(email, password, id = null) {
+    constructor(email, password, authority = 0, id = null) {
         this.id = id;
         this.email = email;
         this.password = password;
+        this.authority = authority;
     }
 }
 
-const UserModel = {
+class UserModel {
 
     // Inserts a new user into the database
-    createUser: (email, hash) => {
+    static create(email, hash) {
         // create user
         const user = new User(email, hash);
 
-        return new Promise((resolve, reject) => {            
+        return new Promise((resolve, reject) => {
             con.query('INSERT INTO users SET ?', user, function(err, result) {
                 if (err) reject(err);
                 user.id = result.insertId;
                 resolve(user);
             });
         });
-    },
+    }
+
+    // Updates a user in the database
+    static update(id, email, password, authority) {
+        return new Promise((resolve, reject) => {
+            const updates = { email, password, authority };
+            con.query('UPDATE users SET ? WHERE id = ?', [updates, id], function(err, result) {
+                if (err) reject(err);
+                resolve(result);
+            });
+        });
+    }
+
+    // Soft deletes users by flipping the deleted flag in bulk
+    static delete(ids) {
+        return new Promise((resolve, reject) => {
+            const query = 'UPDATE users SET deleted = true WHERE id IN (?)';
+            con.query(query, [ids], function(err, result) {
+                if (err) reject(err);
+                resolve(result);
+            });
+        });
+    }
+
+    // Hard deletes users from the database in bulk
+    static deleteHard(ids) {
+        return new Promise((resolve, reject) => {
+            const query = 'DELETE FROM users WHERE id IN (?)';
+            con.query(query, [ids], function(err, result) {
+                if (err) reject(err);
+                resolve(result);
+            });
+        });
+    }
+
+    static findAll() {
+        return new Promise((resolve, reject) => {
+            con.query('SELECT * FROM users WHERE deleted = 0', function(err, results) {
+                if (err) reject(err);
+                const users = results.map(result => UserModel.buildUserFromData(result));
+                resolve(users);
+            });
+        });
+    }
 
     // Fetches user by passed email
-    getUserByEmail: (email) => {
+    static getUserByEmail(email) {
         return new Promise((resolve, reject) => {
-            con.query('SELECT * FROM users WHERE email = ?', email, function(err, result) {
+            con.query('SELECT * FROM users WHERE deleted = 0 AND email = ?', email, function(err, result) {
                 if (err) reject(err);
                 if (result && result.length > 0) {
                     const user = UserModel.buildUserFromData(result[0]);
@@ -37,12 +81,12 @@ const UserModel = {
                 }
             });
         });
-    },
+    }
 
     // Identifies User by id
-    identify: (id) => {
-        return new Promise((resolve, reject) => {            
-            con.query('SELECT * FROM users WHERE id = ? LIMIT 1', id ?? 0, function(err, result) {
+    static identify(id) {
+        return new Promise((resolve, reject) => {
+            con.query('SELECT * FROM users WHERE deleted = 0 AND id = ? LIMIT 1', id ?? 0, function(err, result) {
                 if (err) reject(err);
                 if (result && result.length > 0) {
                     resolve(true); // User found
@@ -51,12 +95,12 @@ const UserModel = {
                 }
             });
         });
-    },
-
-    // Instanciates User from database data
-    buildUserFromData: (data) => {
-        return new User(data.email, data.password, data.id);
     }
-};
+
+    // Instantiates User from database data
+    static buildUserFromData(data) {
+        return new User(data.email, data.password, data.authority, data.id);
+    }
+}
 
 module.exports = UserModel;
