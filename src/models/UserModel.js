@@ -1,5 +1,6 @@
 var con = require('../helpers/database');
 
+// TODO: maybe Authority should be included into the User class and extracted together in a separate file
 const Authority = Object.freeze({
     USER: 0,
     MODERATOR: 1,
@@ -26,7 +27,7 @@ class User {
             case Authority.ADMINISTRATOR:
               return 'Administrator';
             default:
-            // add logger
+              // TODO: add logger
               throw e;
         }
     }

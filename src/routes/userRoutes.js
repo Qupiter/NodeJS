@@ -8,7 +8,7 @@ const { authenticateToken, authenticateTokenWithRoles } = require('../middleware
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { Authority } = require('../models/UserModel');
 
-// have to think more about err handling
+// TODO: have to think more about err handling and middlewares
 const wrapAsync = (handlers) => handlers.map(handler => asyncHandler(handler));
 
 router.group('/users', [], (router) => {
