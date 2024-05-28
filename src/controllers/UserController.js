@@ -2,6 +2,7 @@ const { validationResult } = require('express-validator');
 const UserModel = require('../models/UserModel.js');
 const { hash: hashPassword, compare: comparePassword } = require('../helpers/password');
 const { generate: generateToken } = require('../helpers/token');
+const Authority = require('../helpers/authority');
 
 class UserController {
 
@@ -27,6 +28,8 @@ class UserController {
             email: req.body.email,
             password: req.body.password
         };
+
+        console.log(requestParameters.email);
 
         const existingUser = await UserModel.getUserByEmail(requestParameters.email);
         if(existingUser) {
@@ -77,10 +80,70 @@ class UserController {
     static async update(req, res) {
 
         const requestParameters = {
-            ids: req.body.ids,
+            id: req.body.id,
+            email: req.body.email,
+            restore: req.body.restore,
         };
 
-        return res.status(200).json({data: requestParameters.ids})
+        const existingUser = await UserModel.findOne(requestParameters.id);
+
+        if(existingUser) {
+            if(existingUser.email !== requestParameters.email) {
+                existingUser.email = requestParameters.email;
+
+                await UserModel.update(existingUser);
+            }
+        }
+        
+        if(requestParameters.restore) await UserModel.restore(requestParameters.id);
+
+        return res.status(200).json({status: 'success'})
+    }
+
+    static async promote(req, res) {
+
+        const requestParameters = {
+            id: req.body.id
+        };
+
+        const existingUser = await UserModel.findOne(requestParameters.id);
+        
+        if(existingUser) {
+            // cannot promote to ADMINISTRATOR
+            if(existingUser.authority < Authority.OPERATOR) {
+                // promote
+                existingUser.authority++;
+                await UserModel.update(existingUser);
+            } else {
+                return res.status(400).json({error: 'Cannot promote this account'})
+            }
+        }
+
+        return res.status(200).json({status: 'success'})
+    }
+
+    static async demote(req, res) {
+
+        const requestParameters = {
+            id: req.body.id
+        };
+
+        const existingUser = await UserModel.findOne(requestParameters.id);
+        
+        if(existingUser) {
+            // cannot demote a simple USER, also ADMINISTRATORS cannot be demoted
+            if(existingUser.authority > Authority.USER
+                && existingUser.authority < Authority.ADMINISTRATOR
+            ) {
+                // demote
+                existingUser.authority--;
+                await UserModel.update(existingUser);
+            } else {
+                return res.status(400).json({error: 'Cannot demote this account'})
+            }
+        }
+
+        return res.status(200).json({status: 'success'})
     }
 
     static async delete(req, res) {
@@ -89,9 +152,9 @@ class UserController {
             ids: req.body.ids,
         };
 
-        const result = await UserModel.delete(requestParameters.ids);
+        await UserModel.delete(requestParameters.ids);
 
-        return res.status(200).json({data: result})
+        return res.status(200).send({status: 'success'});
     }
 
     static async deleteHard(req, res) {
@@ -100,9 +163,9 @@ class UserController {
             ids: req.body.ids,
         };
 
-        const result = await UserModel.deleteHard(requestParameters.ids);
+        await UserModel.deleteHard(requestParameters.ids);
 
-        return res.status(200).json({data: result})
+        return res.status(200).send({status: 'success'});
     }
 }
 

@@ -24,8 +24,9 @@ const createUserTableQuery = `
 
 const insertInitialDataQuery = `
     INSERT INTO ${TABLE_NAME} (${COLUMNS.id}, ${COLUMNS.email}, ${COLUMNS.password}, ${COLUMNS.authority}, ${COLUMNS.deleted}) VALUES
-    (1, 'dipper@gmail.com', '$2a$10$mxehy/b1WBW.tjXFiu5m6.DY4Pbck9rPaVFS7bQk1dmSF9w7GHdva', 1, 0),
-    (2, 'zubber@gmail.com', '$2a$10$OEZ5saGe4ihnn849ayP9sOz00lVXn6ZGUoznH0Vk6v/Jmtqo/GyL6', 2, 0);
+    (1, 'user@gmail.com', '$2a$10$ejOKzDki9tcVaOrvDEBaY.OPBD6evpZkJMSDefhun.HucUZz5sSf2', 0, 0),
+    (2, 'operator@gmail.com', '$2a$10$kaarE2zzB5am1D3w280ZGuLYrwPLrooCxYxyWbWGs9bwlg7O8ri9S', 2, 0),
+    (3, 'admin@gmail.com', '$2a$10$sKtYH4zOjtZn33Y2jI9t3uoR/YUaC9.dXGHeF5SRpVa7igW7KNNWi', 3, 0);
 `;
 
 const createUserTable = (con) => {

@@ -26,10 +26,14 @@ class UserModel {
     }
 
     // Updates a user in the database
-    static update(id, email, password, authority) {
+    static update(user) {
         return new Promise((resolve, reject) => {
-            const updates = { email, password, authority };
-            con.query('UPDATE users SET ? WHERE id = ?', [updates, id], function(err, result) {
+            const updates = {
+                email: user.email,
+                password: user.password,
+                authority: user.authority
+            };
+            con.query('UPDATE users SET ? WHERE id = ?', [updates, user.id], function(err, result) {
                 if (err) reject(err);
                 resolve(result);
             });
@@ -47,6 +51,17 @@ class UserModel {
         });
     }
 
+    // Reverses soft delete
+    static restore(id) {
+        return new Promise((resolve, reject) => {
+            const query = 'UPDATE users SET deleted = false WHERE id = ?';
+            con.query(query, [id], function(err, result) {
+                if (err) reject(err);
+                resolve(result);
+            });
+        });
+    }
+
     // Hard deletes users from the database in bulk
     static deleteHard(ids) {
         return new Promise((resolve, reject) => {
@@ -58,6 +73,7 @@ class UserModel {
         });
     }
 
+    // Fetches all active users
     static findAll() {
         return new Promise((resolve, reject) => {
             con.query('SELECT * FROM users WHERE deleted = 0', function(err, results) {
@@ -68,10 +84,25 @@ class UserModel {
         });
     }
 
-    // Fetches user by passed email
+    // Fetches an active user by id
+    static findOne(id) {
+        return new Promise((resolve, reject) => {
+            con.query('SELECT * FROM users WHERE deleted = 0 AND id = ?', id, function(err, result) {
+                if (err) reject(err);
+                if (result && result.length > 0) {
+                    const user = UserModel.buildUserFromData(result[0]);
+                    resolve(user);
+                } else {
+                    resolve(null); // No user found
+                }
+            });
+        });
+    }
+
+    // Fetches an active user by passed email
     static getUserByEmail(email) {
         return new Promise((resolve, reject) => {
-            con.query('SELECT * FROM users WHERE deleted = 0 AND email = ?', email, function(err, result) {
+            con.query('SELECT * FROM users WHERE deleted = 0 AND email = BINARY ?', email, function(err, result) {
                 if (err) reject(err);
                 if (result && result.length > 0) {
                     const user = UserModel.buildUserFromData(result[0]);
