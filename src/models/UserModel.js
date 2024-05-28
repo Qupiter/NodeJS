@@ -1,11 +1,43 @@
 var con = require('../helpers/database');
 
+const Authority = Object.freeze({
+    USER: 0,
+    MODERATOR: 1,
+    OPERATOR: 2,
+    ADMINISTRATOR: 3
+  });
+
 class User {
     constructor(email, password, authority = 0, id = null) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.authority = authority;
+    }
+
+    getRoleName() {
+        switch (this.authority) {
+            case Authority.USER:
+              return 'User';
+            case Authority.MODERATOR:
+              return 'Moderator';
+            case Authority.OPERATOR:
+              return 'Operator';
+            case Authority.ADMINISTRATOR:
+              return 'Administrator';
+            default:
+            // add logger
+              throw e;
+        }
+    }
+
+    getPublicView() {
+        const roleName = this.getRoleName(this.authority);
+        return {
+            id: this.id, 
+            email: this.email, 
+            authority: roleName
+        };
     }
 }
 
@@ -74,9 +106,9 @@ class UserModel {
     }
 
     // Fetches all active users
-    static findAll() {
+    static findByIds(ids) {
         return new Promise((resolve, reject) => {
-            con.query('SELECT * FROM users WHERE deleted = 0', function(err, results) {
+            con.query('SELECT * FROM users WHERE deleted = 0 AND id IN (?)', [ids], function(err, results) {
                 if (err) reject(err);
                 const users = results.map(result => UserModel.buildUserFromData(result));
                 resolve(users);
@@ -134,4 +166,4 @@ class UserModel {
     }
 }
 
-module.exports = UserModel;
+module.exports = {UserModel, Authority};

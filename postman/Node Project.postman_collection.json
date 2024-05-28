@@ -45,8 +45,17 @@
 										}
 									]
 								},
-								"method": "GET",
+								"method": "POST",
 								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ids\": [1, 2, 3]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
 								"url": {
 									"raw": "{{host}}:{{port}}/users/list",
 									"host": [
@@ -145,8 +154,17 @@
 										}
 									]
 								},
-								"method": "GET",
+								"method": "POST",
 								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ids\": [1, 2, 3]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
 								"url": {
 									"raw": "{{host}}:{{port}}/users/list",
 									"host": [
@@ -184,7 +202,7 @@
 											"    pm.expect(response.data.id).to.be.a('number');\r",
 											"    pm.expect(response.data.email).to.be.a('string');\r",
 											"    pm.expect(response.data.email).to.eql('newUser@gmail.com');\r",
-											"    pm.expect(response.data.password).to.be.a('string').and.not.be.empty;\r",
+											"    pm.expect(response.data.authority).to.be.a('string').and.not.be.empty;\r",
 											"});"
 										],
 										"type": "text/javascript",
@@ -816,6 +834,65 @@
 							"response": []
 						},
 						{
+							"name": "Check Promoted",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var response = pm.response.json();\r",
+											"\r",
+											"pm.test(\"Status test 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test('Response data test', function() {\r",
+											"    pm.expect(response.data[0].authority).to.be.a('string');\r",
+											"    pm.expect(response.data[0].authority).to.eql('Moderator');\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ids\": [{{newUser}}]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}:{{port}}/users/list",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"users",
+										"list"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Cannot Promote",
 							"event": [
 								{
@@ -928,6 +1005,65 @@
 									"path": [
 										"users",
 										"demote"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Check Demoted",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var response = pm.response.json();\r",
+											"\r",
+											"pm.test(\"Status test 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test('Response data test', function() {\r",
+											"    pm.expect(response.data[0].authority).to.be.a('string');\r",
+											"    pm.expect(response.data[0].authority).to.eql('User');\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ids\": [{{newUser}}]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}:{{port}}/users/list",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"users",
+										"list"
 									]
 								}
 							},

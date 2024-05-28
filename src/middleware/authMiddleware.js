@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET_KEY } = require('../helpers/configurations');
-const UserModel = require('../models/UserModel.js');
+const { UserModel } = require('../models/UserModel');
 
 const verifyToken = (req, res, next, requiredRoles = []) => {
     const token = req.header('Authorization')?.split(' ')[1];

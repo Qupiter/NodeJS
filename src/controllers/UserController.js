@@ -1,18 +1,17 @@
 const { validationResult } = require('express-validator');
-const UserModel = require('../models/UserModel.js');
+const { UserModel, Authority } = require('../models/UserModel');
 const { hash: hashPassword, compare: comparePassword } = require('../helpers/password');
 const { generate: generateToken } = require('../helpers/token');
-const Authority = require('../helpers/authority');
 
 class UserController {
 
     //** fetches all users */
     static async list(req, res) {
-        const listUsers = await UserModel.findAll();
+        const listUsers = await UserModel.findByIds(req.body.ids);
 
         return res.status(200).json({
             status: 'success',
-            data: listUsers
+            data: listUsers.map(user => user.getPublicView())
         });
     }
 
@@ -29,8 +28,6 @@ class UserController {
             password: req.body.password
         };
 
-        console.log(requestParameters.email);
-
         const existingUser = await UserModel.getUserByEmail(requestParameters.email);
         if(existingUser) {
             return res.status(400).json({error: 'User already exists'})
@@ -42,7 +39,7 @@ class UserController {
 
         return res.status(200).json({
             status: 'success',
-            data: newUser
+            data: newUser.getPublicView()
         });
     }
 
